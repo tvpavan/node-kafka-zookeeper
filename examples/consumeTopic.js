@@ -1,5 +1,5 @@
 var Kafkazoo = require('../lib/Kafkazoo');
-var Logger = require('Logger');
+var Logger = require('./Logger');
 var _ = require('underscore');
 
 // command line parameters
@@ -38,7 +38,7 @@ var onMessages = function (error, messages, acknowledge) {
     if (error) return log.error(error);
     // log some details
     log.info('Received %d messages', messages.length);
-    log.debug(messages[0].substring(0, 100) + '...');
+    log.debug(messages[0].toString().substring(0, 100) + '...');
 
     // and get next batch
     acknowledge(true); // false will resend the same messages after a delay

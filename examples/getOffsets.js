@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var Kafkazoo = require('../lib/Kafkazoo');
-var Logger = require('Logger');
+var Logger = require('./Logger');
 
 // command line parameters
 var argv = require('optimist')
