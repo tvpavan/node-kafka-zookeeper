@@ -8,41 +8,40 @@ A high-level client library in Node.js for the Apache Kafka project with Zookeep
 
 ###Consumer example:
 
-A `Zookeeper` object handles broker enumeration and offset storage
+A `Kafkazoo` object handles broker enumeration and offset storage
 ```javascript
-var Zookeeper = require('kafka-zookeeper').Zookeeper;
-var zk = new Zookeeper({
-  host: 'kafka00.lan',
-  port: 2181
+var Kafkazoo = require('kafka-zookeeper').Kafkazoo;
+var kafka = new Kafkazoo({
+  host: 'localhost',
+  port: 2181,
+  zkPath: '/'
 });
 
-var onMessages = function(messages, error, cb) {
-  if (error) return console.error(error);
-  console.log('Received %d messages', messages.length);
+var onMessages = function (error, messages, acknowledge) {
+    if (error) return log.error(error);
+    // log some details
+    log.info('Received %d messages', messages.length);
+    log.debug(messages[0].substring(0, 100) + '...');
 
-  // true  - (Acknowledge) Update Zk offsets and continue consuming
-  // false - (Fail) Resend the same batch in 5 seconds so I don't
-  //                have to put it somewhere. TODO: configure wait
-  cb(true);
-}
+    // and get next batch
+    acknowledge(true); // false will resend the same messages after a delay
+};
 
 // Start consuming
-// TODO: Support message filter function argument
-zk.consumeTopic('MessageHeaders', 'dcrouse', onMessages);
+kafka.consume('MessageHeaders', 'dcrouse', onMessages);
 
 // Stop consuming
-// TODO: Implement
 
 ```
 
 ###Utility examples:
 
-The `Zookeeper` object also exposes some utility functions - used internally and useful for testing
+The `Kafkazoo` object also exposes some utility functions - used internally and useful for testing
 ```javascript
 var _ = require('underscore');
-var Zookeeper = require('../lib/Zookeeper');
+var Kafkazoo = require('kafka-zookeeper');
 
-var zk = new Zookeeper({
+var kafka = new Kafkazoo({
   host: 'localhost',
   port: 2181
 });
@@ -55,7 +54,7 @@ var onConsumerOffsets = function(offsets, error) {
   console.log('Offsets', offsets);
 };
 
-zk.getConsumerOffsets(topic, group, onConsumerOffsets);
+kafka.getConsumerOffsets(topic, group, onConsumerOffsets);
 
 // Initialize consumer offsets
 var onInitializeConsumerOffsets = function(error) {
@@ -63,7 +62,7 @@ var onInitializeConsumerOffsets = function(error) {
   console.log('Consumer offsets initialized');
 };
 
-zk.initializeConsumerOffsets(topic, group, onInitializeConsumerOffsets);
+kafka.initializeConsumerOffsets(topic, group, onInitializeConsumerOffsets);
 ```
 
 ###Installation:
